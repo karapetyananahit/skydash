@@ -30,7 +30,6 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-//        dd($request->all());
 
         $request->validate([
             'username' => ['required', 'string', 'max:255'],
@@ -49,7 +48,6 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
-//dd(redirect(RouteServiceProvider::HOME));
         return redirect('/dashboard');
     }
 }

@@ -59,9 +59,10 @@
                                 <a href="{{ route('password.request') }}" class="auth-link text-black">Forgot password?</a>
                             </div>
                             <div class="mb-2">
-
                                 <a href="{{ route('facebook.login') }}" class="btn btn-block btn-facebook auth-form-btn"><i class="ti-facebook mr-2"></i>Connect using facebook</a>
-
+                            </div>
+                            <div class="mb-2">
+                                <a href="{{ route('google.login') }}" class="btn btn-block btn-google auth-form-btn"><i class="ti-google mr-2"></i>Connect using google</a>
                             </div>
                             <div class="text-center mt-4 font-weight-light">
                                 Don't have an account? <a href="{{route('register')}}" class="text-primary">Create</a>

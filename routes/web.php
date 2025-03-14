@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FacebookController;
+use App\Http\Controllers\GoogleController;
+
 
 
 /*
@@ -39,4 +41,6 @@ Route::get('auth/facebook', [FacebookController::class, 'redirectToFacebook'])->
 Route::get('auth/facebook/callback', [FacebookController::class, 'handleFacebookCallback']);
 
 
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 require __DIR__.'/auth.php';
