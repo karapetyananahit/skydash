@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -29,7 +29,7 @@
                         <form class="pt-3" method="POST" action="{{ route('register') }}">
                             @csrf
                             <div class="form-group">
-                                <input type="text" name="username" class="form-control form-control-lg" id="exampleInputUsername1" placeholder="Username">
+                                <input type="text" name="username" class="form-control form-control-lg @error('username') is-invalid @enderror" id="exampleInputUsername1" placeholder="Username">
                                 @error('username')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -37,10 +37,11 @@
                                 @enderror
                             </div>
                             <div class="form-group">
-                                <input type="email" name="email" class="form-control form-control-lg" id="exampleInputEmail1" placeholder="Email">
+                                <input type="email" name="email" class="form-control form-control-lg @error('email') is-invalid @enderror" id="exampleInputEmail1" placeholder="Email">
                                 @error('email')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
+
                                 </span>
                                 @enderror
                             </div>
@@ -55,7 +56,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <input type="password" name="password" class="form-control form-control-lg" id="exampleInputPassword1" placeholder="Password">
+                                <input type="password" name="password" class="form-control form-control-lg  @error('password') is-invalid @enderror" id="exampleInputPassword1" placeholder="Password">
                                 @error('password')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -65,15 +66,10 @@
                             <div class="mb-4">
                                 <div class="form-check">
                                     <label class="form-check-label text-muted">
-                                        <input type="checkbox" name="terms" class="form-check-input" required>
+                                        <input type="checkbox" name="terms" class="form-check-input " required>
                                         I agree to all Terms & Conditions
                                     </label>
                                 </div>
-                                @error('terms')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
                             </div>
                             <div class="mt-3">
                                 <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN UP</button>

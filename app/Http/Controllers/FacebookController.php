@@ -18,21 +18,24 @@ class FacebookController extends Controller
     // Handle Facebook callback
     public function handleFacebookCallback()
     {
-        try {
-            $facebookUser = Socialite::driver('facebook')->user();
-            $user = User::updateOrCreate([
-                'facebook_id' => $facebookUser->id,
-            ], [
-                'username' => $facebookUser->name,
-                'email' => $facebookUser->email,
-                'password' => bcrypt(uniqid()),
-                'facebook_token' => $facebookUser->token,
-            ]);
 
-            Auth::login($user);
-            return redirect()->route('dashboard')->with('success', 'You have successfully logged in with Facebook!');
-        } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Something went wrong!');
+        $facebookUser = Socialite::driver('facebook')->user();
+
+        $user = User::where('email', $facebookUser->getEmail())->first();
+
+        if (!$user) {
+            $user = User::create([
+                'username' => $facebookUser->getName(),
+                'email' => $facebookUser->getEmail(),
+                'facebook_id' => $facebookUser->getId(),
+                'avatar' => $facebookUser->getAvatar(),
+                'password' => bcrypt('password'),
+            ]);
         }
+
+        Auth::login($user);
+
+        return redirect()->route('dashboard');
+
     }
 }
