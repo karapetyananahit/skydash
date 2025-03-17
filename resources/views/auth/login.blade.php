@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="{{asset('css/vertical-layout-light/style.css')}}">
 
     <link rel="stylesheet" href="{{asset('images/favicon.png')}}">
-    <link rel="shortcut icon" href="../../../public/images/favicon.png" />
 </head>
 
 <body>
