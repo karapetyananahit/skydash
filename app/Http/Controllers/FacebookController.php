@@ -15,8 +15,9 @@ class FacebookController extends Controller
 
     public function handleFacebookCallback()
     {
+        $facebookUser = Socialite::driver('facebook')->stateless()->user();
 
-        $facebookUser = Socialite::driver('facebook')->user();
+//        $facebookUser = Socialite::driver('facebook')->user();
 
         $user = User::where('email', $facebookUser->getEmail())->first();
 
