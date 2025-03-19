@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FacebookController;
@@ -36,6 +37,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/delete-image', [ProfileController::class, 'deleteImage'])->name('profile.image.delete');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('/users', [UserController::class, 'index'])->name('user.index');
+    Route::get('/users/edit/{id}', [UserController::class, 'edit'])->name('user.edit');
+    Route::put('/users/update', [UserController::class, 'update'])->name('user.update');
+    Route::get('/users/create', [UserController::class, 'create'])->name('user.create');
+    Route::post('/users/create', [UserController::class, 'store'])->name('user.store');
+    Route::delete('/users/delete/{id}', [UserController::class, 'delete'])->name('user.delete');
+    Route::post('/image-upload', [ImageController::class, 'store'])->name('image.upload');
 });
 
 

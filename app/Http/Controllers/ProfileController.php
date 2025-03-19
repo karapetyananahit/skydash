@@ -73,18 +73,4 @@ class ProfileController extends Controller
         return Redirect::to('/');
     }
 
-    public function deleteImage(Request $request)
-    {
-        $user = auth()->user();
-
-        if ($user->profile_img) {
-            Storage::delete('public/auth/' . $user->profile_img);
-            $user->profile_img = null;
-            $user->save();
-
-            return response()->json(['success' => true, 'message' => 'Image deleted successfully']);
-        }
-
-        return response()->json(['success' => false, 'message' => 'No image to delete'], 400);
-    }
 }
