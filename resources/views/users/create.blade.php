@@ -46,7 +46,15 @@
                                 </span>
                             @enderror
                         </div>
+                        <div class="form-group">
+                            <div class="form-check d-flex">
+                                <input  type="checkbox" name="is_admin" id="is_admin" value="1">
+                                <label class="form-check-label" for="is_admin">
+                                    Make this user an Admin
+                                </label>
+                            </div>
 
+                        </div>
                         <div class="mt-3">
                             <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">Create</button>
                         </div>

@@ -34,6 +34,7 @@ class UserController extends Controller
             'country' => $request->country,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->has('is_admin') ? 'admin' : 'user',
         ]);
 
         return redirect('/users');
@@ -56,24 +57,22 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
-        $user->username = $request->input('username');
-        $user->email = $request->input('email');
+        $updateData = [
+            'username' => $request->username,
+            'email' => $request->email,
+            'role' => $request->has('is_admin') ? 'admin' : 'user',
+            'profile_img' => $request->filled('profile_img') ? $request->profile_img : null,
+        ];
 
         if ($request->filled('password')) {
-            $user->password = bcrypt($request->input('password'));
-        }
-        if ($request->filled('profile_img')) {
-            $user->profile_img = $request->profile_img;
-        }else{
-            $user->profile_img = null;
+            $updateData['password'] = bcrypt($request->password);
         }
 
-        $user->save();
+        $user->update($updateData);
 
-        return redirect()->route('user.index', $user->id)
-        ->with('status', 'user-updated');
+        return redirect()->route('user.index')
+            ->with('status', 'User updated successfully!');
     }
-
 
     public function delete($id)
     {

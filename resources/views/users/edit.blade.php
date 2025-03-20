@@ -9,6 +9,19 @@
                     @csrf
                     @method('PUT')
 
+
+                    <div class="mt-4">
+                        <label for="is_admin" class="flex items-center">
+                            <input id="is_admin" name="is_admin" type="checkbox"
+                                   class="rounded border-gray-300 shadow-sm focus:ring focus:ring-indigo-200"
+                                   value="1"
+                                {{ old('is_admin', $user->role === 'admin' ? 'checked' : '') }}>
+                            <span class="ml-2 text-gray-700">Make this user an Admin</span>
+                        </label>
+                        <x-input-error class="mt-2" :messages="$errors->get('is_admin')" />
+                    </div>
+
+
                     <div class="container">
                         <div class="mt-4">
                             <x-input-label for="username" :value="__('Username')" />
