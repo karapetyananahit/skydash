@@ -42,11 +42,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('user.index');
     Route::get('/users/edit/{id}', [UserController::class, 'edit'])->name('user.edit');
-    Route::put('/users/update', [UserController::class, 'update'])->name('user.update');
+    Route::put('/users/update/{id}', [UserController::class, 'update'])->name('user.update');
     Route::get('/users/create', [UserController::class, 'create'])->name('user.create');
     Route::post('/users/create', [UserController::class, 'store'])->name('user.store');
     Route::delete('/users/delete/{id}', [UserController::class, 'delete'])->name('user.delete');
-    Route::post('/image-upload', [ImageController::class, 'store'])->name('image.upload');
+    Route::post('/user/{id}/upload-image', [UserController::class, 'uploadImage'])->name('user.uploadImage');
 });
 
 Route::get('auth/facebook', [FacebookController::class, 'redirectToFacebook'])->name('facebook.login');

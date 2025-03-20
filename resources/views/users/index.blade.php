@@ -7,7 +7,9 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <a href="{{route('user.create')}}">Create User</a>
+            <a href="{{ route('user.create') }}" class="px-6 py-2 btn  btn-primary font-semibold rounded-2xl shadow-sm   hover:no-underline">
+                Create User
+            </a>
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div>
                     <div class="container">
@@ -25,7 +27,7 @@
                             <tbody>
                             @foreach ($users as $user)
                                 <tr>
-                                    <td>{{ $user->id }}</td>
+                                    <td>{{  $loop->iteration  }}</td>
                                     <td>
                                         @if ($user->profile_img)
                                             <img id="profileImage" src="{{ asset('storage/auth/' . $user->profile_img) }}" alt="Profile Picture" class="rounded-full w-10 h-10 object-cover" />
@@ -36,13 +38,16 @@
                                     <td>{{ $user->username }}</td>
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->created_at->format('Y-m-d H:i:s') }}</td>
-                                    <td>
-                                        <a href="{{ route('user.edit', $user->id) }}">Edit</a> |
+                                    <td class="text-center space-x-4">
+
+                                        <a href="{{ route('user.edit', $user->id) }}" class="text-blue-500 hover:text-blue-700">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
                                         <form action="{{ route('user.delete', $user->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" onclick="return" style="background: none; border: none; color: red; cursor: pointer;">
-                                                Delete
+                                            <button type="submit" class="text-red-500 hover:text-red-700 bg-transparent border-none cursor-pointer background: none;">
+                                                <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </form>
                                     </td>

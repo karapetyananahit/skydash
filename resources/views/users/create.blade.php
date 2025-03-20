@@ -4,8 +4,9 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <h1>Create New User</h1>
-
+                <h2 class="text-lg font-medium text-gray-900">
+                    {{ __('Create New User') }}
+                </h2>
                 <div class="content pt-5" id="kt_content">
                     <form class="pt-3" method="POST" action="{{ route('user.store') }}">
                         @csrf
@@ -26,6 +27,7 @@
                                 </span>
                             @enderror
                         </div>
+
                         <div class="form-group">
                             <select class="form-control form-control-lg" name="country" id="exampleFormControlSelect2">
                                 <option disabled value="">Country</option>
@@ -47,6 +49,9 @@
 
                         <div class="mt-3">
                             <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">Create</button>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ url('/users') }}" class="btn btn-block btn-secondary btn-lg font-weight-medium auth-form-btn">Cancel</a>
                         </div>
                     </form>
 
