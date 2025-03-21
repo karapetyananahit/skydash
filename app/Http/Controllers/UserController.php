@@ -1,12 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -16,69 +15,52 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
-    public function create()
+    public function form($id = null)
     {
-        return view('users.create');
+        $user = $id ? User::findOrFail($id) : null;
+        return view('users.form', compact('user'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(UserRequest $request): RedirectResponse
     {
-        $request->validate([
-            'username' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'country' => ['required', 'string'],
-            'password' => ['required', Password::defaults()],
-        ]);
         User::create([
             'username' => $request->username,
             'country' => $request->country,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->has('is_admin') ? 'admin' : 'user',
+            'profile_img' => $request->filled('profile_img') ? $request->profile_img : null,
         ]);
 
-        return redirect('/users');
+        return redirect()->route('user.index')->with('status', 'User created successfully!');
     }
 
-    public function edit($id)
+    public function update(UserRequest $request, $id): RedirectResponse
     {
-        $user = User::find($id);
-        return view('users.edit', compact('user'));
-    }
-
-    public function update(Request $request, $id): RedirectResponse
-    {
-        $request->validate([
-            'username' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255'],
-            'password' => ['nullable', 'confirmed', Password::defaults()],
-            'profile_img' => 'nullable|string'
-        ]);
-
         $user = User::findOrFail($id);
 
         $updateData = [
             'username' => $request->username,
+            'country' => $request->country,
             'email' => $request->email,
             'role' => $request->has('is_admin') ? 'admin' : 'user',
-            'profile_img' => $request->filled('profile_img') ? $request->profile_img : null,
+            'profile_img' => $request->filled('profile_img') ? $request->profile_img : $user->profile_img,
         ];
 
         if ($request->filled('password')) {
-            $updateData['password'] = bcrypt($request->password);
+            $updateData['password'] = Hash::make($request->password);
         }
 
         $user->update($updateData);
 
-        return redirect()->route('user.index')
-            ->with('status', 'User updated successfully!');
+        return redirect()->route('user.index')->with('status', 'User updated successfully!');
     }
 
     public function delete($id)
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
         $user->delete();
-        return redirect('/users')->with('success', 'User deleted successfully');
+        return redirect()->route('user.index')->with('success', 'User deleted successfully');
     }
 
     public function uploadImage(Request $request, $id)
@@ -93,5 +75,4 @@ class UserController extends Controller
 
         return response()->json(['file_path' => $filename]);
     }
-
 }

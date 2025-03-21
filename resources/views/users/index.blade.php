@@ -7,7 +7,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <a href="{{ route('user.create') }}" class="px-6 py-2 btn  btn-primary font-semibold rounded-2xl shadow-sm   hover:no-underline">
+            <a href="{{ route('user.form') }}" class="px-6 py-2 btn btn-primary font-semibold rounded-2xl shadow-sm hover:no-underline">
                 Create User
             </a>
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
@@ -39,14 +39,13 @@
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->created_at->format('Y-m-d H:i:s') }}</td>
                                     <td class="text-center space-x-4">
-
-                                        <a href="{{ route('user.edit', $user->id) }}" class="text-blue-500 hover:text-blue-700">
+                                        <a href="{{ route('user.form', $user->id) }}" class="text-blue-500 hover:text-blue-700">
                                             <i class="fa-solid fa-pen"></i>
                                         </a>
-                                        <form action="{{ route('user.delete', $user->id) }}" method="POST" style="display:inline;">
+                                        <form action="{{ route('user.delete', $user->id) }}" method="POST" id="delete-form-{{ $user->id }}" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-500 hover:text-red-700 bg-transparent border-none cursor-pointer background: none;">
+                                            <button type="button" class="text-red-500 hover:text-red-700 bg-transparent border-none cursor-pointer" onclick="confirmDelete({{ $user->id }})">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </form>
@@ -60,4 +59,23 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(userId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + userId).submit();
+                }
+            });
+        }
+    </script>
 </x-app-layout>
