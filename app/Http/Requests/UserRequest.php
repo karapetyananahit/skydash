@@ -28,7 +28,7 @@ class UserRequest extends FormRequest
             'username' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->route('id')],
             'password' => ['required','confirmed', Password::defaults()],
-            'profile_img' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
+            'profile_img' => ['string','nullable'],
         ];
 
         return $rules;

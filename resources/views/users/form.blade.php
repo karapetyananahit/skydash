@@ -98,7 +98,7 @@
         Dropzone.autoDiscover = false;
 
         let uploadedFile = "{{ isset($user) && $user->profile_img ? asset('storage/auth/' . $user->profile_img) : '' }}";
-        let uploadUrl = "{{ isset($user) ? route('user.uploadImage', $user->id) : '#' }}";
+        let uploadUrl = "{{ isset($user) ? route('user.uploadImage', $user->id) : route('user.uploadImage', 0) }}";
 
         let myDropzone = new Dropzone("#dropzone", {
             url: uploadUrl,

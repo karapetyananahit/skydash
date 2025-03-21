@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -59,6 +60,11 @@ class UserController extends Controller
     public function delete($id)
     {
         $user = User::findOrFail($id);
+
+        if ($user->profile_img && Storage::exists('public/auth/' . $user->profile_img)) {
+            Storage::delete('public/auth/' . $user->profile_img);
+        }
+
         $user->delete();
         return redirect()->route('user.index')->with('success', 'User deleted successfully');
     }
@@ -71,7 +77,7 @@ class UserController extends Controller
 
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $file->storeAs('public/auth', $filename);
+//        $file->storeAs('public/auth', $filename);
 
         return response()->json(['file_path' => $filename]);
     }
