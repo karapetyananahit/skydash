@@ -45,6 +45,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/users/create', [UserController::class, 'store'])->name('user.store');
     Route::put('/users/update/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/users/delete/{id}', [UserController::class, 'delete'])->name('user.delete');
+    Route::get('/users/cancel', [UserController::class, 'cancel'])->name('user.cancel');
     Route::post('/user/{id}/upload-image', [UserController::class, 'uploadImage'])->name('user.uploadImage');
 });
 

@@ -27,9 +27,14 @@ class UserRequest extends FormRequest
         $rules = [
             'username' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->route('id')],
-            'password' => ['required','confirmed', Password::defaults()],
-            'profile_img' => ['string','nullable'],
+            'profile_img' => ['string', 'nullable'],
         ];
+
+        if ($this->isMethod('post')) { // Եթե store (create) request է
+            $rules['password'] = ['required', 'confirmed', Password::defaults()];
+        } else { // Եթե update (edit) request է
+            $rules['password'] = ['nullable', 'confirmed', Password::defaults()];
+        }
 
         return $rules;
     }

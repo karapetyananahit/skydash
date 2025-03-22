@@ -24,14 +24,26 @@ class UserController extends Controller
 
     public function store(UserRequest $request): RedirectResponse
     {
+        $profileImg = null;
+        if ($request->filled('profile_img')) {
+            $tempPath = 'public/temp/' . $request->profile_img;
+            if (Storage::exists($tempPath)) {
+                $newPath = 'public/auth/' . $request->profile_img;
+                Storage::move($tempPath, $newPath);
+                $profileImg = $request->profile_img;
+
+            }
+        }
+
         User::create([
             'username' => $request->username,
             'country' => $request->country,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->has('is_admin') ? 'admin' : 'user',
-            'profile_img' => $request->filled('profile_img') ? $request->profile_img : null,
+            'profile_img' => $profileImg,
         ]);
+        Storage::deleteDirectory('public/temp');
 
         return redirect()->route('user.index')->with('status', 'User created successfully!');
     }
@@ -39,15 +51,32 @@ class UserController extends Controller
     public function update(UserRequest $request, $id): RedirectResponse
     {
         $user = User::findOrFail($id);
+        $profileImg = $user->profile_img;
+        if ($request->filled('profile_img') && $request->profile_img !== $user->profile_img) {
 
+            if ($user->profile_img && Storage::exists('public/auth/' . $user->profile_img)) {
+                Storage::delete('public/auth/' . $user->profile_img);
+            }
+
+            $tempPath = 'public/temp/' . $request->profile_img;
+            if (Storage::exists($tempPath)) {
+                $newPath = 'public/auth/' . $request->profile_img;
+                Storage::move($tempPath, $newPath);
+                $profileImg = $request->profile_img;
+            }
+
+        }
+        if(!($request->filled('profile_img'))){
+            Storage::delete('public/auth/' . $user->profile_img);
+        }
         $updateData = [
             'username' => $request->username,
             'country' => $request->country,
             'email' => $request->email,
             'role' => $request->has('is_admin') ? 'admin' : 'user',
-            'profile_img' => $request->filled('profile_img') ? $request->profile_img : $user->profile_img,
+            'profile_img' =>$request->filled('profile_img') ? $profileImg : null,
         ];
-
+        Storage::deleteDirectory('public/temp');
         if ($request->filled('password')) {
             $updateData['password'] = Hash::make($request->password);
         }
@@ -77,8 +106,17 @@ class UserController extends Controller
 
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
-//        $file->storeAs('public/auth', $filename);
+
+        $file->storeAs('public/temp', $filename);
 
         return response()->json(['file_path' => $filename]);
+    }
+
+    public function cancel()
+    {
+        if (Storage::exists('public/temp')) {
+            Storage::deleteDirectory('public/temp');
+        }
+        return redirect()->route('user.index');
     }
 }
