@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{asset('css/vertical-layout-light/style.css')}}">
     <link rel="stylesheet" href="{{asset('images/favicon.png')}}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
+    <link rel="stylesheet" href="{{asset('vendors/mdi/css/materialdesignicons.min.css')}}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

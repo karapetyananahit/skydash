@@ -14,8 +14,8 @@
             <a href="{{ route('user.form') }}" class="btn btn-primary mb-3">Create User</a>
             <div class="card p-4">
                 <table id="usersTable" class="table table-striped">
-                    <thead>
-                    <tr>
+                    <thead class="bg-primary text-white thead-rounded">
+                    <tr class="border border-primary">
                         <th>ID</th>
                         <th>User</th>
                         <th>Username</th>
@@ -24,6 +24,7 @@
                         <th>Actions</th>
                     </tr>
                     </thead>
+
                     <tbody>
                     @foreach ($users as $user)
                         <tr>
@@ -39,14 +40,14 @@
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->created_at->format('Y-m-d H:i:s') }}</td>
                             <td>
-                                <a href="{{ route('user.form', $user->id) }}" class="btn btn-sm btn-warning">
-                                    <i class="fa-solid fa-pen"></i>
+                                <a href="{{ route('user.form', $user->id) }}" class="btn text-primary border border-primary rounded-2">
+                                    <i class="mdi mdi-lead-pencil"></i>
                                 </a>
                                 <form action="{{ route('user.delete', $user->id) }}" method="POST" id="delete-form-{{ $user->id }}" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ $user->id }})">
-                                        <i class="fa-solid fa-trash"></i>
+                                    <button type="button" class="btn text-danger border border-primary rounded-2" onclick="confirmDelete({{ $user->id }})">
+                                        <i class="mdi mdi-delete"></i>
                                     </button>
                                 </form>
                             </td>
