@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InfluencerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/users/delete/{id}', [UserController::class, 'delete'])->name('user.delete');
     Route::get('/users/cancel', [UserController::class, 'cancel'])->name('user.cancel');
     Route::post('/user/{id}/upload-image', [UserController::class, 'uploadImage'])->name('user.uploadImage');
+
+    Route::get('/influencers', [InfluencerController::class, 'index'])->name('influencer.index');
+    Route::get('/influencers/form/{id?}', [InfluencerController::class, 'form'])->name('influencer.form');
+    Route::post('/influencers/create', [InfluencerController::class, 'store'])->name('influencer.store');
+    Route::post('/influencers/{id}/upload-image', [InfluencerController::class, 'uploadImage'])->name('influencer.uploadImage');
+
+
 });
 
 Route::get('auth/facebook', [FacebookController::class, 'redirectToFacebook'])->name('facebook.login');

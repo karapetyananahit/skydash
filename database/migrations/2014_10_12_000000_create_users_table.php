@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('username');
             $table->string('country')->nullable();
             $table->string('email')->unique();
-            $table->string('profile_img');
             $table->string('facebook_id')->unique()->nullable();
             $table->string('facebook_token')->nullable();
             $table->timestamp('email_verified_at')->nullable();

@@ -44,6 +44,9 @@
                             <x-dropdown-link :href="route('user.index')">
                                 {{ __('Users') }}
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('influencer.index')">
+                                {{ __('Influencers') }}
+                            </x-dropdown-link>
                         @endif
 
                         <!-- Authentication -->
