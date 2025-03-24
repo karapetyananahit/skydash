@@ -30,16 +30,13 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
-                                @if ($user->profile_img)
-                                    <img src="{{ asset('storage/auth/' . $user->profile_img) }}" alt="Profile Picture" class="rounded-circle" width="40" height="40">
-                                @else
-                                    <p>No image</p>
-                                @endif
+                                <img src="{{ asset($user->profile_img ? 'storage/auth/' . $user->profile_img : 'images/default-profile.png')}}"
+                                     alt="Profile Picture" class="rounded-circle" width="40" height="40">
                             </td>
                             <td>{{ $user->username }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->created_at->format('Y-m-d H:i:s') }}</td>
-                            <td>
+                            <td class="text-center">
                                 <a href="{{ route('user.form', $user->id) }}" class="btn text-primary border border-primary rounded-2">
                                     <i class="mdi mdi-lead-pencil"></i>
                                 </a>

@@ -1,3 +1,6 @@
+@php
+    use App\Enums\UserRoles;
+@endphp
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,7 +40,7 @@
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>
-                        @if(Auth::user() && Auth::user()->role === 'admin')
+                        @if(Auth::check() && Auth::user()->role === UserRoles::ADMIN)
                             <x-dropdown-link :href="route('user.index')">
                                 {{ __('Users') }}
                             </x-dropdown-link>
