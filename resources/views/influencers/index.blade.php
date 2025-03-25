@@ -35,10 +35,10 @@
                             <td>{{ $influencer->name }}</td>
                             <td>{{ $influencer->created_at->format('Y-m-d H:i:s') }}</td>
                             <td class="text-center">
-                                <a href="{{ route('user.form', $influencer->id) }}" class="btn text-primary border border-primary rounded-2">
+                                <a href="{{ route('influencer.form', $influencer->id) }}" class="btn text-primary border border-primary rounded-2">
                                     <i class="mdi mdi-lead-pencil"></i>
                                 </a>
-                                <form action="{{ route('user.delete', $influencer->id) }}" method="POST" id="delete-form-{{ $influencer->id }}" class="d-inline">
+                                <form action="{{ route('influencer.delete', $influencer->id) }}" method="POST" id="delete-form-{{ $influencer->id }}" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" class="btn text-danger border border-primary rounded-2" onclick="confirmDelete({{ $influencer->id }})">

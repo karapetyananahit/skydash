@@ -1,4 +1,3 @@
-
 @include('layouts.header')
 @include('layouts.navigation')
 
@@ -9,13 +8,11 @@
                 {{ isset($influencer) ? __('Update User Information') : __('Create New User') }}
             </h2>
 
-            <form method="POST" action="{{ isset($influencer) ? route('user.update', $influencer->id) : route('influencer.store') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
+            <form method="POST" action="{{ isset($influencer) ? route('influencer.update', $influencer->id) : route('influencer.store') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
                 @csrf
                 @isset($influencer)
                     @method('PUT')
                 @endisset
-
-
 
                 <div class="container">
                     <div class="mt-4">
@@ -36,69 +33,30 @@
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="mt-4">
-                        <x-input-label for="socialMedias" :value="__('Select Social Media')" />
 
+                    <div class="flex flex-col space-y-2">
                         @php
                             $selectedPlatforms = old('socialMedias', $influencer->socialMedias ?? []);
                         @endphp
-
-                        <div class="flex flex-col space-y-2">
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="socialMedias[]" value="Tiktok"
-                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                    {{ in_array('Tiktok', $selectedPlatforms) ? 'checked' : '' }}>
-                                <span class="ml-2">Tiktok</span>
-                            </label>
-
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="socialMedias[]" value="Instagram Reel"
-                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                    {{ in_array('Instagram Reel', $selectedPlatforms) ? 'checked' : '' }}>
-                                <span class="ml-2">Instagram Reel</span>
-                            </label>
-
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="socialMedias[]" value="Instagram Story"
-                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                    {{ in_array('Instagram Story', $selectedPlatforms) ? 'checked' : '' }}>
-                                <span class="ml-2">Instagram Story</span>
-                            </label>
-
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="socialMedias[]" value="YouTube Integration"
-                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                    {{ in_array('YouTube Integration', $selectedPlatforms) ? 'checked' : '' }}>
-                                <span class="ml-2">YouTube Integration</span>
-                            </label>
-
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="socialMedias[]" value="YouTube Dedicated"
-                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                    {{ in_array('YouTube Dedicated', $selectedPlatforms) ? 'checked' : '' }}>
-                                <span class="ml-2">YouTube Dedicated</span>
-                            </label>
-
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="socialMedias[]" value="YouTube Short"
-                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                    {{ in_array('YouTube Short', $selectedPlatforms) ? 'checked' : '' }}>
-                                <span class="ml-2">YouTube Short</span>
-                            </label>
-
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="socialMedias[]" value="Facebook Post"
-                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                    {{ in_array('Facebook Post', $selectedPlatforms) ? 'checked' : '' }}>
-                                <span class="ml-2">Facebook Post</span>
-                            </label>
-                        </div>
+                        <x-input-label for="socialMedias" :value="__('Select Social Media')" />
+                        @foreach ($socialMedias as $socialMedia)
+                            <div>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="socialMedias[]" value="{{ $socialMedia->id }}"
+                                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                           @if (isset($influencer) && $influencer->socialMedias->contains('id', $socialMedia->id)) checked @endif>
+                                    <span>{{ $socialMedia->name }}</span>
+                                </label>
+                                <input type="number" name="prices[{{ $socialMedia->id }}]"
+                                       value="{{ old('prices.' . $socialMedia->id, isset($influencer) && $influencer->socialMedias->contains('id', $socialMedia->id) ? $influencer->socialMedias->firstWhere('id', $socialMedia->id)->pivot->price : '0') }}"
+                                       placeholder="Price" step="0.01" class="ml-2 rounded border-gray-300 p-1">
+                            </div>
+                        @endforeach
 
                         @error('platforms')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-
 
                     <div class="mt-3">
                         <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">
@@ -119,7 +77,6 @@
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
     <script>
-
         Dropzone.autoDiscover = false;
 
         let uploadedFile = "{{ isset($influencer) && $influencer->image ? asset('storage/auth/' . $influencer->image) : '' }}";

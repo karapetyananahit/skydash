@@ -16,13 +16,13 @@ class SocialMediasSeeder extends Seeder
     public function run()
     {
         DB::table('social_medias')->insert([
-            ['name' => 'Youtube Integration', 'price' => 3500],
-            ['name' => 'Youtube Dedicated', 'price' => 8000],
-            ['name' => 'Youtube Short', 'price' => 3000],
-            ['name' => 'Instagram Reel', 'price' => 2500],
-            ['name' => 'Instagram Story', 'price' => 1000],
-            ['name' => 'TikTok', 'price' => 2500],
-            ['name' => 'Facebook Post', 'price' => 3000],
+            ['name' => 'Youtube Integration'],
+            ['name' => 'Youtube Dedicated'],
+            ['name' => 'Youtube Short'],
+            ['name' => 'Instagram Reel'],
+            ['name' => 'Instagram Story'],
+            ['name' => 'TikTok'],
+            ['name' => 'Facebook Post'],
         ]);
 
     }

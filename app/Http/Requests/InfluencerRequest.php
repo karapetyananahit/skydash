@@ -26,6 +26,7 @@ class InfluencerRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'image' => ['string', 'nullable'],
+            'prices' => 'nullable|array',
             'socialMedias' => 'nullable|array',
         ];
     }

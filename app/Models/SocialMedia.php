@@ -9,11 +9,14 @@ class SocialMedia extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'price'];
+    protected $table = 'social_medias';
+    protected $fillable = ['name'];
 
     public function influencers()
     {
-        return $this->belongsToMany(Influencer::class, 'influencers_social_medias', 'social_medias_id', 'influencer_id');
+        return $this->belongsToMany(Influencer::class, 'influencers_social_medias', 'social_medias_id', 'influencer_id')
+            ->withPivot('price')
+            ->withTimestamps();
     }
 }
 

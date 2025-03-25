@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('influencers_social_medias', function (Blueprint $table) {
             $table->id();
+            $table->decimal('price',10,2);
             $table->foreignId('influencer_id')->constrained()->onDelete('cascade');
             $table->foreignId('social_medias_id')->constrained()->onDelete('cascade');
             $table->timestamps();

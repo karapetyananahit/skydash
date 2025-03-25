@@ -52,7 +52,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/influencers', [InfluencerController::class, 'index'])->name('influencer.index');
     Route::get('/influencers/form/{id?}', [InfluencerController::class, 'form'])->name('influencer.form');
     Route::post('/influencers/create', [InfluencerController::class, 'store'])->name('influencer.store');
+    Route::put('/influencers/update/{id}', [InfluencerController::class, 'update'])->name('influencer.update');
     Route::post('/influencers/{id}/upload-image', [InfluencerController::class, 'uploadImage'])->name('influencer.uploadImage');
+    Route::delete('/influencers/delete/{id}', [InfluencerController::class, 'delete'])->name('influencer.delete');
 
 
 });

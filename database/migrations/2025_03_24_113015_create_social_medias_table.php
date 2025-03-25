@@ -15,10 +15,8 @@ return new class extends Migration
     {
         Schema::create('social_medias', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->integer('price');
+            $table->string('name')->unique();
             $table->timestamps();
-
         });
     }
 
