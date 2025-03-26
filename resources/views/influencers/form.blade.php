@@ -28,19 +28,21 @@
                         <x-input-label for="image" :value="__('Profile Image')" />
                         <div id="dropzone" class="dropzone border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 mt-4">
                         </div>
-                        <input type="hidden" name="image" id="image" value="{{ $influencer->image ?? '' }}">
+                        <input type="hidden" name="image" id="image" value="{{ old('image', $influencer->image ?? '') }}">
+                        <input type="hidden" name="previous_image" id="previous_image" value="{{ old('previous_image', $influencer->image ?? '') }}">
+
                         @error('image')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="flex flex-col space-y-2">
+                    <div class="mt-4 flex flex-col space-y-2">
                         @php
                             $selectedPlatforms = old('socialMedias', $influencer->socialMedias ?? []);
                         @endphp
                         <x-input-label for="socialMedias" :value="__('Select Social Media')" />
                         @foreach ($socialMedias as $socialMedia)
-                            <div>
+                            <div class="mt-4 flex items-center space-x-2">
                                 <label class="flex items-center space-x-2 cursor-pointer">
                                     <input type="checkbox" name="socialMedias[]" value="{{ $socialMedia->id }}"
                                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
@@ -64,7 +66,7 @@
                         </button>
                     </div>
                     <div class="flex items-center gap-4 mt-4">
-                        <a href="{{ route('user.cancel') }}" class="btn btn-block btn-secondary btn-lg font-weight-medium auth-form-btn">Cancel</a>
+                        <a href="{{ route('influencer.cancel') }}" class="btn btn-block btn-secondary btn-lg font-weight-medium auth-form-btn">Cancel</a>
                     </div>
                 </div>
             </form>
@@ -79,7 +81,7 @@
     <script>
         Dropzone.autoDiscover = false;
 
-        let uploadedFile = "{{ isset($influencer) && $influencer->image ? asset('storage/auth/' . $influencer->image) : '' }}";
+        let uploadedFile = "{{ isset($influencer) && $influencer->image ? asset('storage/temp/' . $influencer->image) : '' }}";
         let uploadUrl = "{{ isset($influencer) ? route('influencer.uploadImage', $influencer->id) : route('influencer.uploadImage', 0) }}";
 
         let myDropzone = new Dropzone("#dropzone", {
@@ -95,30 +97,55 @@
             },
             init: function () {
                 let dz = this;
+                let imageInput = document.getElementById('image');
+                let previousImageInput = document.getElementById('previous_image');
 
-                if (uploadedFile) {
-                    let mockFile = { name: "Current Avatar", size: 1234567, type: "image/jpeg" };
+                let previousImage = previousImageInput.value;
+
+                if (previousImage) {
+                    let mockFile = { name: previousImage, size: 1234567, type: "image/jpeg" };
                     dz.emit("addedfile", mockFile);
                     dz.emit("thumbnail", mockFile, uploadedFile);
                     dz.emit("complete", mockFile);
                     dz.files.push(mockFile);
                 }
 
+                dz.on("removedfile", function (file) {
+
+                    let previousImageInput = document.getElementById('previous_image');
+                    if (previousImageInput.value) {
+                        fetch("{{ route('influencer.deleteImage') }}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ filename: previousImageInput.value })
+                        }).then(response => response.json())
+                            .then(data => console.log("Dropzone - Delete response:", data))
+                            .catch(error => console.error("Dropzone - Delete error:", error));
+                    }
+                    document.getElementById('image').value = "";
+                    document.getElementById('previous_image').value = "";
+                });
+
                 dz.on("addedfile", function (file) {
                     if (dz.files.length > 1) {
-                        dz.removeFile(dz.files[0]);
+                        let oldFile = dz.files[0];
+                        previousImageInput.value = imageInput.value;
+                        dz.removeFile(oldFile);
                     }
                 });
 
                 dz.on("success", function (file, response) {
-                    document.getElementById('image').value = response.file_path;
-                });
-
-                dz.on("removedfile", function () {
-                    document.getElementById('image').value = "";
+                    if (imageInput.value) {
+                        previousImageInput.value = imageInput.value;
+                    }
+                    imageInput.value = response.file_path;
                 });
             }
         });
     </script>
+
 @endsection
 @include('layouts.footer')

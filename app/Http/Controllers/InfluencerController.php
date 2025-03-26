@@ -7,6 +7,7 @@ use App\Models\Influencer;
 use App\Models\SocialMedia;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class InfluencerController extends Controller
@@ -29,15 +30,24 @@ class InfluencerController extends Controller
     public function store(InfluencerRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        $image = null;
+
+        if ($request->filled('image')) {
+            $tempPath = 'public/temp/' . $data['image'];
+            if (Storage::exists($tempPath)) {
+                $newPath = 'public/auth/' . $data['image'];
+                Storage::move($tempPath, $newPath);
+                $image = $data['image'];
+                Storage::delete($tempPath);
+            }
+        }
 
         $influencer = Influencer::create([
             'name' => $data['name'],
-            'image' => $data['image'] ?? null,
+            'image' => $image ?? null,
         ]);
-
-        $socialMediaIds = $data['socialMedias'];
-        $prices = $data['prices'];
-
+        $socialMediaIds = $data['socialMedias'] ?? [];;
+        $prices = $data['prices'] ?? [];
         foreach ($socialMediaIds as $socialMediaId) {
             $socialMedia = SocialMedia::find($socialMediaId);
             if ($socialMedia) {
@@ -46,10 +56,8 @@ class InfluencerController extends Controller
                 ]);
             }
         }
-
         return redirect()->route('influencer.index')->with('success', 'Influencer created successfully!');
     }
-
 
     public function update(InfluencerRequest $request, $id): RedirectResponse
     {
@@ -92,18 +100,29 @@ class InfluencerController extends Controller
         return redirect()->route('influencer.index')->with('success', 'User deleted successfully');
     }
 
-    public function uploadImage(Request $request, $id)
-    {
+    public function uploadImage(Request $request, $id) {
         $request->validate([
-            'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
+            'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
 
+        $previousImage = $request->input('previous_image');
+        if ($previousImage && Storage::exists('public/temp/' . $previousImage)) {
+            Storage::delete('public/temp/' . $previousImage);
+        }
         $file->storeAs('public/temp', $filename);
-
         return response()->json(['file_path' => $filename]);
+    }
+
+    public function deleteImage(Request $request) {
+        $filename = $request->input('filename');
+        if ($filename && Storage::exists('public/temp/' . $filename)) {
+            Storage::delete('public/temp/' . $filename);
+            return response()->json(['success' => true, 'message' => 'Image deleted']);
+        }
+        return response()->json(['success' => false, 'message' => 'File not found'], 404);
     }
 
     public function cancel()
