@@ -62,22 +62,41 @@ class InfluencerController extends Controller
     public function update(InfluencerRequest $request, $id): RedirectResponse
     {
         $data = $request->validated();
-
         $influencer = Influencer::findOrFail($id);
 
+        $image = $influencer->image;
+
+        if (!empty($data['image']) && $data['image'] !== $influencer->image) {
+            $tempPath = 'public/temp/' . $data['image'];
+            $newPath = 'public/auth/' . $data['image'];
+            if ($influencer->image && Storage::exists('public/auth/' . $influencer->image)) {
+                Storage::delete('public/auth/' . $influencer->image);
+            }
+            if (Storage::exists($tempPath)) {
+                Storage::move($tempPath, $newPath);
+                $image = $data['image'];
+            }
+        }
+
+        if ($request->has('image') && empty($data['image'])) {
+            if ($influencer->image && Storage::exists('public/auth/' . $influencer->image)) {
+                Storage::delete('public/auth/' . $influencer->image);
+            }
+            $image = null;
+        }
+
         $influencer->update([
-            'name' => $data['name'],
-            'image' => $data['image'] ?? $influencer->image,
+            'name'  => $data['name'],
+            'image' => $image,
         ]);
+
 
         $socialMediaIds = $data['socialMedias'];
         $prices = $data['prices'];
 
         $influencer->socialMedias()->detach();
-
         foreach ($socialMediaIds as $socialMediaId) {
             $socialMedia = SocialMedia::find($socialMediaId);
-
             if ($socialMedia) {
                 $influencer->socialMedias()->attach($socialMedia->id, [
                     'price' => $prices[$socialMediaId] ?? 0,
@@ -91,11 +110,9 @@ class InfluencerController extends Controller
     public function delete($id)
     {
         $influencer = Influencer::findOrFail($id);
-
         if ($influencer->image && Storage::exists('public/auth/' . $influencer->profile_img)) {
             Storage::delete('public/auth/' . $influencer->image);
         }
-
         $influencer->delete();
         return redirect()->route('influencer.index')->with('success', 'User deleted successfully');
     }
@@ -120,16 +137,16 @@ class InfluencerController extends Controller
         $filename = $request->input('filename');
         if ($filename && Storage::exists('public/temp/' . $filename)) {
             Storage::delete('public/temp/' . $filename);
-            return response()->json(['success' => true, 'message' => 'Image deleted']);
         }
-        return response()->json(['success' => false, 'message' => 'File not found'], 404);
+        return response()->json(['success' => true, 'message' => 'Image deleted']);
     }
 
-    public function cancel()
+    public function cancel(Request $request)
     {
-        if (Storage::exists('public/temp')) {
-            Storage::deleteDirectory('public/temp');
+        $imageName = $request->input('image');
+        if ($imageName && Storage::exists('public/temp/' . $imageName)) {
+            Storage::delete('public/temp/' . $imageName);
         }
-        return redirect()->route('user.index');
+        return response()->json(['message' => 'Image deleted successfully']);
     }
 }

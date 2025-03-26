@@ -56,7 +56,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/influencers/{id}/upload-image', [InfluencerController::class, 'uploadImage'])->name('influencer.uploadImage');
     Route::post('/influencer/delete-image', [InfluencerController::class, 'deleteImage'])->name('influencer.deleteImage');
     Route::delete('/influencers/delete/{id}', [InfluencerController::class, 'delete'])->name('influencer.delete');
-    Route::get('/influencers/cancel', [InfluencerController::class, 'cancel'])->name('influencer.cancel');
+    Route::post('/influencers/cancel', [InfluencerController::class, 'cancel'])->name('influencer.cancel');
 
 
 });

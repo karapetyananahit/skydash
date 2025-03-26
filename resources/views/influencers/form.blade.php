@@ -66,7 +66,7 @@
                         </button>
                     </div>
                     <div class="flex items-center gap-4 mt-4">
-                        <a href="{{ route('influencer.cancel') }}" class="btn btn-block btn-secondary btn-lg font-weight-medium auth-form-btn">Cancel</a>
+                        <a href="#" id="cancelUpload" class="btn btn-block btn-secondary btn-lg font-weight-medium auth-form-btn">Cancel</a>
                     </div>
                 </div>
             </form>
@@ -79,10 +79,38 @@
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
     <script>
+        document.getElementById('cancelUpload').addEventListener('click', function (event) {
+            event.preventDefault(); // Խուսափում ենք էջի refresh-ից
+
+            let imageName = document.getElementById('image').value; // Վերջին վերբեռնված նկարի անունը
+
+            if (imageName) {
+                fetch("{{ route('influencer.cancel') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ image: imageName })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Image deleted:", data);
+                        window.location.href = "{{ route('influencer.index') }}";
+                    })
+                    .catch(error => console.error("Error:", error));
+            } else {
+                window.location.href = "{{ route('influencer.index') }}";
+            }
+        });
+
+
+
         Dropzone.autoDiscover = false;
 
-        let uploadedFile = "{{ isset($influencer) && $influencer->image ? asset('storage/temp/' . $influencer->image) : '' }}";
+        {{--let uploadedFile = "{{ isset($influencer) && $influencer->image ? asset('storage/temp/' . $influencer->image) : '' }}";--}}
         let uploadUrl = "{{ isset($influencer) ? route('influencer.uploadImage', $influencer->id) : route('influencer.uploadImage', 0) }}";
+        let uploadedFile = "{{ isset($influencer) && $influencer->image ? asset('storage/auth/' . $influencer->image) : '' }}";
 
         let myDropzone = new Dropzone("#dropzone", {
             url: uploadUrl,
