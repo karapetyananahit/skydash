@@ -23,7 +23,6 @@
                         @enderror
                     </div>
 
-
                     <div class="mt-4">
                         <x-input-label for="image" :value="__('Profile Image')" />
                         <div id="dropzone" class="dropzone border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 mt-4">
@@ -45,13 +44,15 @@
                             <div class="mt-4 flex items-center space-x-2">
                                 <label class="flex items-center space-x-2 cursor-pointer">
                                     <input type="checkbox" name="socialMedias[]" value="{{ $socialMedia->id }}"
-                                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                           @if (isset($influencer) && $influencer->socialMedias->contains('id', $socialMedia->id)) checked @endif>
+                                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 social-media-checkbox"
+                                           @if (isset($influencer) && $influencer->socialMedias->contains('id', $socialMedia->id)) checked @endif
+                                           data-input-id="price-{{ $socialMedia->id }}">
                                     <span>{{ $socialMedia->name }}</span>
                                 </label>
                                 <input type="number" name="prices[{{ $socialMedia->id }}]"
                                        value="{{ old('prices.' . $socialMedia->id, isset($influencer) && $influencer->socialMedias->contains('id', $socialMedia->id) ? $influencer->socialMedias->firstWhere('id', $socialMedia->id)->pivot->price : '0') }}"
-                                       placeholder="Price" step="0.01" class="ml-2 rounded border-gray-300 p-1">
+                                       placeholder="Price" step="0.01" class="ml-2 rounded border-gray-300 p-1 social-media-price"
+                                       id="price-{{ $socialMedia->id }}" disabled>
                             </div>
                         @endforeach
 
@@ -75,15 +76,40 @@
     </div>
 </div>
 
-
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.social-media-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const priceInput = document.getElementById(checkbox.dataset.inputId);
+                    if (checkbox.checked) {
+                        priceInput.disabled = false;
+                        if (priceInput.value === '') {
+                            priceInput.value = '0';
+                        }
+                    } else {
+                        priceInput.disabled = true;
+                        priceInput.value = '';
+                    }
+                });
+                const priceInput = document.getElementById(checkbox.dataset.inputId);
+                if (checkbox.checked) {
+                    priceInput.disabled = false;
+                    if (priceInput.value === '') {
+                        priceInput.value = '0';
+                    }
+                } else {
+                    priceInput.disabled = true;
+                    priceInput.value = '';
+                }
+            });
+        });
+
         document.getElementById('cancelUpload').addEventListener('click', function (event) {
-            event.preventDefault(); // Խուսափում ենք էջի refresh-ից
-
-            let imageName = document.getElementById('image').value; // Վերջին վերբեռնված նկարի անունը
-
+            event.preventDefault();
+            let imageName = document.getElementById('image').value;
             if (imageName) {
                 fetch("{{ route('influencer.cancel') }}", {
                     method: "POST",
@@ -93,22 +119,14 @@
                     },
                     body: JSON.stringify({ image: imageName })
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("Image deleted:", data);
-                        window.location.href = "{{ route('influencer.index') }}";
-                    })
-                    .catch(error => console.error("Error:", error));
+                    .then(response => response.json());
             } else {
                 window.location.href = "{{ route('influencer.index') }}";
             }
         });
 
-
-
         Dropzone.autoDiscover = false;
 
-        {{--let uploadedFile = "{{ isset($influencer) && $influencer->image ? asset('storage/temp/' . $influencer->image) : '' }}";--}}
         let uploadUrl = "{{ isset($influencer) ? route('influencer.uploadImage', $influencer->id) : route('influencer.uploadImage', 0) }}";
         let uploadedFile = "{{ isset($influencer) && $influencer->image ? asset('storage/auth/' . $influencer->image) : '' }}";
 
@@ -149,9 +167,7 @@
                                 "Content-Type": "application/json"
                             },
                             body: JSON.stringify({ filename: previousImageInput.value })
-                        }).then(response => response.json())
-                            .then(data => console.log("Dropzone - Delete response:", data))
-                            .catch(error => console.error("Dropzone - Delete error:", error));
+                        }).then(response => response.json());
                     }
                     document.getElementById('image').value = "";
                     document.getElementById('previous_image').value = "";
