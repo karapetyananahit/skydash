@@ -47,6 +47,9 @@
                             <x-dropdown-link :href="route('influencer.index')">
                                 {{ __('Influencers') }}
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('influencers-cards.index')">
+                                {{ __('Influencers Cards') }}
+                            </x-dropdown-link>
                         @endif
 
                         <!-- Authentication -->

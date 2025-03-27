@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InfluencerController;
+use App\Http\Controllers\InfluencersCardsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -59,6 +60,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/influencers/cancel', [InfluencerController::class, 'cancel'])->name('influencer.cancel');
 
 
+    Route::get('/influencers-cards', [InfluencersCardsController::class, 'index'])->name('influencers-cards.index');
+    Route::get('/influencers-cards/search', [InfluencersCardsController::class, 'search'])->name('influencers-cards.search');
+    Route::get('/influencers-cards/load-more', [InfluencersCardsController::class, 'loadMore'])->name('influencers-cards.loadMore');
 });
 
 Route::get('auth/facebook', [FacebookController::class, 'redirectToFacebook'])->name('facebook.login');
