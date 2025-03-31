@@ -10,17 +10,20 @@
                 <ul class="list-group list-group-flush mt-3">
                     @foreach($influencer->socialmedias as $socialmedia)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <input type="checkbox" name="selected_services[]" value="{{ $socialmedia->id }}"
+                            <input type="checkbox"
                                    class="me-2 service-checkbox"
                                    data-influencer-name="{{ $influencer->name }}"
                                    data-service-name="{{ $socialmedia->name }}"
                                    data-service-price="{{ $socialmedia->pivot->price }}"
-                                   data-target="quantity-{{ $socialmedia->id }}">
+                                   data-target="quantity-{{ $influencer->id }}-{{ $socialmedia->id }}">
+
 
                             {{ $socialmedia->name }}
-                            <input type="number" name="quantity[{{ $socialmedia->id }}]" value="1" min="1"
-                                   class="form-control form-control-sm mx-2 quantity-input"
-                                   id="quantity-{{ $socialmedia->id }}" disabled
+                            <input type="number"
+                                   id="quantity-{{ $influencer->id }}-{{ $socialmedia->id }}"
+                                   name="quantity[{{ $influencer->id }}][{{ $socialmedia->id }}]"
+                                   class="form-control form-control-sm mx-2 quantity-input" value="1"
+                                   disabled
                                    style="width: 35px; height: 25px; padding: 2px; text-align: center;">
                             <span class="badge rounded-pill">{{ $socialmedia->pivot->price }}$</span>
                         </li>

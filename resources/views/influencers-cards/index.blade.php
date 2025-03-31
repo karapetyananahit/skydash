@@ -32,6 +32,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
     <script>
+
         document.addEventListener("DOMContentLoaded", function () {
             let checkboxes = document.querySelectorAll(".service-checkbox");
             let tableContainer = document.getElementById("selected-influencers-container");
@@ -41,11 +42,68 @@
             let totalFees = 0;
 
             function updateTotalFees() {
-                totalFeesElement.textContent = `$${totalFees}`;
+                totalFeesElement.textContent = `$${totalFees.toFixed(2)}`;
             }
 
-            function calculateFee(quantity, serviceFee) {
-                return parseFloat(quantity) * parseFloat(serviceFee);
+            function updateTotalFeeRow(row, newTotalFee) {
+                row.cells[3].textContent = `$${newTotalFee.toFixed(2)}`;
+            }
+
+            function calculateInfluencerTotal(influencerName) {
+                let rows = Array.from(selectedInfluencersBody.querySelectorAll("tr"));
+                let total = 0;
+
+                rows.forEach(function (row) {
+                    if (row.cells[0].textContent.trim() === influencerName.trim()) {
+                        let services = row.cells[1].textContent.split(", ");
+                        services.forEach(function (serviceName) {
+                            let checkbox = Array.from(document.querySelectorAll(".service-checkbox")).find(cb =>
+                                cb.dataset.influencerName === influencerName &&
+                                cb.dataset.serviceName === serviceName
+                            );
+                            if (checkbox) {
+                                let quantityInput = document.getElementById(checkbox.dataset.target);
+                                let quantity = parseInt(quantityInput.value) || 1;
+                                let price = parseFloat(checkbox.dataset.servicePrice) || 0;
+                                total += quantity * price;
+                            }
+                        });
+                    }
+                });
+
+                return total;
+            }
+
+            function updateFeeRow(row) {
+                let serviceFees = row.cells[1].textContent.split(", ").map(serviceName => {
+                    let checkbox = Array.from(document.querySelectorAll(".service-checkbox")).find(cb =>
+                        cb.dataset.influencerName === row.cells[0].textContent.trim() &&
+                        cb.dataset.serviceName === serviceName
+                    );
+                    return checkbox ? parseFloat(checkbox.dataset.servicePrice) : 0;
+                });
+
+                let totalFee = serviceFees.reduce((acc, fee) => acc + fee, 0);
+                row.cells[2].textContent = `$${totalFee.toFixed(2)}`;
+            }
+
+            function updateInfluencerTotal(influencerName) {
+                let existingRow = Array.from(selectedInfluencersBody.querySelectorAll("tr")).find(row =>
+                    row.cells[0].textContent.trim() === influencerName.trim()
+                );
+
+                if (existingRow) {
+                    updateFeeRow(existingRow);
+
+                    let newTotalFee = calculateInfluencerTotal(influencerName);
+                    let oldTotalFee = parseFloat(existingRow.cells[3].textContent.replace('$', '')) || 0;
+
+                    totalFees -= oldTotalFee;
+                    totalFees += newTotalFee;
+
+                    updateTotalFeeRow(existingRow, newTotalFee);
+                    updateTotalFees();
+                }
             }
 
             checkboxes.forEach(function (checkbox) {
@@ -59,33 +117,25 @@
                     if (this.checked) {
                         quantityInput.disabled = false;
                         let quantity = parseInt(quantityInput.value) || 1;
-                        let updatedFee = calculateFee(quantity, servicePrice);
+                        let updatedFee = servicePrice * quantity;
 
                         let existingRow = Array.from(selectedInfluencersBody.querySelectorAll("tr")).find(row =>
                             row.cells[0].textContent.trim() === influencerName.trim()
                         );
 
                         if (existingRow) {
-                            let currentServices = existingRow.cells[1].textContent.split(", ");
-                            let currentServicesPrice = existingRow.cells[2].textContent;
+                            let currentServices = existingRow.cells[1].textContent;
                             if (!currentServices.includes(serviceName)) {
-                                console.log(currentServicesPrice);
-                                currentServices.push(serviceName);
-                                existingRow.cells[1].textContent = currentServices.join(", ");
-
-                                let currentFee = parseFloat(existingRow.cells[3].textContent.replace('$', '')) || 0;
-                                let newFee = currentFee + updatedFee;
-                                existingRow.cells[3].textContent = `$${newFee}`;
-
-                                totalFees += updatedFee;
+                                existingRow.cells[1].textContent = currentServices + ", " + serviceName;
+                                updateInfluencerTotal(influencerName);
                             }
                         } else {
                             let newRow = document.createElement("tr");
-                            newRow.innerHTML = `
-                        <td>${influencerName}</td>
-                        <td>${serviceName}</td>
-                        <td>$${servicePrice}</td>
-                        <td>$${updatedFee}</td>`;
+                            newRow.innerHTML =
+                                `<td>${influencerName}</td>
+                            <td>${serviceName}</td>
+                            <td>$${servicePrice.toFixed(2)}</td>
+                            <td>$${updatedFee.toFixed(2)}</td>`;
                             selectedInfluencersBody.appendChild(newRow);
                             totalFees += updatedFee;
                         }
@@ -94,6 +144,7 @@
                     } else {
                         quantityInput.disabled = true;
                         quantityInput.value = 1;
+                        priceBadge.textContent = `$${servicePrice.toFixed(2)}`;
 
                         let rows = selectedInfluencersBody.querySelectorAll("tr");
                         rows.forEach(function (row) {
@@ -107,10 +158,7 @@
                                     selectedInfluencersBody.removeChild(row);
                                 } else {
                                     row.cells[1].textContent = newServices.join(", ");
-                                    let currentFee = parseFloat(row.cells[3].textContent.replace('$', '')) || 0;
-                                    let updatedFee = currentFee - servicePrice;
-                                    row.cells[3].textContent = `$${updatedFee}`;
-                                    totalFees -= servicePrice;
+                                    updateInfluencerTotal(influencerName);
                                 }
                             }
                         });
@@ -125,24 +173,14 @@
 
             document.querySelectorAll(".quantity-input").forEach(function (input) {
                 input.addEventListener("input", function () {
-                    let priceBadge = this.closest("li").querySelector(".badge");
+                    let influencerName = this.closest(".card-body").querySelector(".card-title").textContent.trim();
                     let serviceFee = parseFloat(this.closest("li").querySelector("input[type='checkbox']").dataset.servicePrice);
-                    let quantity = parseInt(this.value) || 0;
-                    let updatedFee = calculateFee(quantity, serviceFee);
+                    let priceBadge = this.closest("li").querySelector(".badge");
+                    let quantity = parseInt(this.value) || 1;
+                    let updatedFee = serviceFee * quantity;
+                    priceBadge.textContent = `$${updatedFee.toFixed(2)}`;
 
-                    let influencerName = this.closest("li").querySelector("input[type='checkbox']").dataset.influencerName;
-                    let row = Array.from(selectedInfluencersBody.querySelectorAll("tr")).find(row =>
-                        row.cells[0].textContent.trim() === influencerName.trim()
-                    );
-
-                    if (row) {
-                        let currentFee = parseFloat(row.cells[3].textContent.replace('$', '')) || 0;
-                        totalFees -= currentFee;
-                        row.cells[3].textContent = `$${updatedFee}`;
-                        totalFees += updatedFee;
-                    }
-
-                    updateTotalFees();
+                    updateInfluencerTotal(influencerName);
                 });
             });
         });
@@ -152,7 +190,7 @@
 
             $('#search').on('input', function() {
                 let query = $(this).val();
-                $('#influencers-list').html('<p>Loading...</p>');  // Show loading indicator
+                $('#influencers-list').html('<p>Loading...</p>');
                 $.ajax({
                     url: '{{ route('influencers-cards.search') }}',
                     method: 'GET',
@@ -191,7 +229,6 @@
             });
 
         });
-
 
     </script>
 @endsection
