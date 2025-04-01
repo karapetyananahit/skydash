@@ -20,6 +20,6 @@ class InfluencersExport implements FromCollection, WithHeadings
 
     public function headings(): array
     {
-        return ["Influencer Name", "Services", "Price per Service", "Total"];
+        return ["Influencer Name", "Services", "Fee", "Total Fee"];
     }
 }

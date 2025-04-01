@@ -142,6 +142,56 @@
                 }
             }
 
+            function updateInfluencerServicesAndCount(influencerName) {
+                let existingRow = Array.from(selectedInfluencersBody.querySelectorAll("tr")).find(row =>
+                    row.cells[0].textContent.trim() === influencerName.trim()
+                );
+
+                if (!existingRow) return;
+
+                let serviceNames = [];
+                let totalFee = 0;
+                let newTotalFee = 0;
+
+                let checkboxes = Array.from(document.querySelectorAll(".service-checkbox")).filter(cb =>
+                    cb.dataset.influencerName === influencerName
+                );
+
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        let serviceName = checkbox.dataset.serviceName;
+                        let quantityInput = document.getElementById(checkbox.dataset.target);
+                        let quantity = parseInt(quantityInput.value) || 1;
+                        let price = parseFloat(checkbox.dataset.servicePrice) || 0;
+
+                        serviceNames.push(serviceName);
+                        totalFee += price;
+                        newTotalFee += price * quantity;
+                    }
+                });
+
+                let totalCount = checkboxes.reduce((acc, checkbox) => {
+                    if (checkbox.checked) {
+                        let quantityInput = document.getElementById(checkbox.dataset.target);
+                        let quantity = parseInt(quantityInput.value) || 1;
+                        return acc + quantity;
+                    }
+                    return acc;
+                }, 0);
+
+                if (serviceNames.length > 0) {
+                    existingRow.cells[1].textContent = `${serviceNames.join(", ")} (${totalCount})`;
+                    existingRow.cells[2].textContent = `$${totalFee.toFixed(2)}`;
+                    existingRow.cells[3].textContent = `$${newTotalFee.toFixed(2)}`;
+                } else {
+                    let oldTotalFee = parseFloat(existingRow.cells[3].textContent.replace('$', '')) || 0;
+                    totalFees -= oldTotalFee;
+                    selectedInfluencersBody.removeChild(existingRow);
+                }
+
+                updateTotalFees();
+            }
+
             checkboxes.forEach(function (checkbox) {
                 checkbox.addEventListener("change", function () {
                     let influencerName = this.dataset.influencerName;
@@ -149,7 +199,6 @@
                     let servicePrice = parseFloat(this.dataset.servicePrice);
                     let quantityInput = document.getElementById(this.dataset.target);
                     let priceBadge = this.closest("li").querySelector(".badge");
-
                     if (this.checked) {
                         quantityInput.disabled = false;
                         let quantity = parseInt(quantityInput.value) || 1;
@@ -175,6 +224,7 @@
                             selectedInfluencersBody.appendChild(newRow);
                             totalFees += updatedFee;
                         }
+                        updateInfluencerServicesAndCount(influencerName)
 
                         updateTotalFees();
                     } else {
@@ -198,6 +248,7 @@
                                 }
                             }
                         });
+                        updateInfluencerServicesAndCount(influencerName)
 
                         updateTotalFees();
                     }
@@ -215,8 +266,9 @@
                     let quantity = parseInt(this.value) || 1;
                     let updatedFee = serviceFee * quantity;
                     priceBadge.textContent = `$${updatedFee.toFixed(2)}`;
-
                     updateInfluencerTotal(influencerName);
+                    updateInfluencerServicesAndCount(influencerName)
+
                 });
             });
         });
