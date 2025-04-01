@@ -47,6 +47,16 @@
                 tableData.push(rowData);
             });
 
+            let totalFeesText = document.getElementById("total-fees").textContent.replace('$', '').trim();
+            let totalFees = parseFloat(totalFeesText) || 0;
+
+            tableData.push({
+                name: "TOTAL FEES",
+                services: "",
+                price: "",
+                total: `$${totalFees.toFixed(2)}`
+            });
+
             fetch("{{ route('export.influencers') }}", {
                 method: "POST",
                 headers: {
@@ -78,8 +88,18 @@
             let totalFees = 0;
 
             function updateTotalFees() {
-                totalFeesElement.textContent = `$${totalFees.toFixed(2)}`;
+                let totalFees = 0;
+                let rows = document.querySelectorAll("#selected-influencers-body tr");
+
+                rows.forEach(row => {
+                    let totalFeeText = row.cells[3].textContent.replace('$', '').trim();
+                    let totalFee = parseFloat(totalFeeText) || 0;
+                    totalFees += totalFee;
+                });
+
+                document.getElementById("total-fees").textContent = `$${totalFees.toFixed(2)}`;
             }
+
 
             function updateTotalFeeRow(row, newTotalFee) {
                 row.cells[3].textContent = `$${newTotalFee.toFixed(2)}`;
@@ -193,83 +213,91 @@
             }
 
             checkboxes.forEach(function (checkbox) {
-                checkbox.addEventListener("change", function () {
-                    let influencerName = this.dataset.influencerName;
-                    let serviceName = this.dataset.serviceName;
-                    let servicePrice = parseFloat(this.dataset.servicePrice);
-                    let quantityInput = document.getElementById(this.dataset.target);
-                    let priceBadge = this.closest("li").querySelector(".badge");
-                    if (this.checked) {
-                        quantityInput.disabled = false;
-                        let quantity = parseInt(quantityInput.value) || 1;
-                        let updatedFee = servicePrice * quantity;
+                document.addEventListener("change", function (event) {
+                    if (event.target.classList.contains("service-checkbox")) {
+                        let checkbox = event.target;
+                        let influencerName = checkbox.dataset.influencerName;
+                        let serviceName = checkbox.dataset.serviceName;
+                        let servicePrice = parseFloat(checkbox.dataset.servicePrice);
+                        let quantityInput = document.getElementById(checkbox.dataset.target);
+                        let priceBadge = checkbox.closest("li").querySelector(".badge");
 
-                        let existingRow = Array.from(selectedInfluencersBody.querySelectorAll("tr")).find(row =>
-                            row.cells[0].textContent.trim() === influencerName.trim()
-                        );
+                        if (checkbox.checked) {
+                            quantityInput.disabled = false;
+                            let quantity = parseInt(quantityInput.value) || 1;
+                            let updatedFee = servicePrice * quantity;
 
-                        if (existingRow) {
-                            let currentServices = existingRow.cells[1].textContent;
-                            if (!currentServices.includes(serviceName)) {
-                                existingRow.cells[1].textContent = currentServices + ", " + serviceName;
-                                updateInfluencerTotal(influencerName);
-                            }
-                        } else {
-                            let newRow = document.createElement("tr");
-                            newRow.innerHTML =
-                                `<td>${influencerName}</td>
-                            <td>${serviceName}</td>
-                            <td>$${servicePrice.toFixed(2)}</td>
-                            <td>$${updatedFee.toFixed(2)}</td>`;
-                            selectedInfluencersBody.appendChild(newRow);
-                            totalFees += updatedFee;
-                        }
-                        updateInfluencerServicesAndCount(influencerName)
+                            let existingRow = Array.from(selectedInfluencersBody.querySelectorAll("tr")).find(row =>
+                                row.cells[0].textContent.trim() === influencerName.trim()
+                            );
 
-                        updateTotalFees();
-                    } else {
-                        quantityInput.disabled = true;
-                        quantityInput.value = 1;
-                        priceBadge.textContent = `$${servicePrice.toFixed(2)}`;
-
-                        let rows = selectedInfluencersBody.querySelectorAll("tr");
-                        rows.forEach(function (row) {
-                            if (row.cells[0].textContent.trim() === influencerName.trim()) {
-                                let currentServices = row.cells[1].textContent.split(", ");
-                                let newServices = currentServices.filter(service => service !== serviceName);
-
-                                if (newServices.length === 0) {
-                                    let rowFee = parseFloat(row.cells[3].textContent.replace('$', '')) || 0;
-                                    totalFees -= rowFee;
-                                    selectedInfluencersBody.removeChild(row);
-                                } else {
-                                    row.cells[1].textContent = newServices.join(", ");
+                            if (existingRow) {
+                                let currentServices = existingRow.cells[1].textContent;
+                                if (!currentServices.includes(serviceName)) {
+                                    existingRow.cells[1].textContent = currentServices + ", " + serviceName;
                                     updateInfluencerTotal(influencerName);
                                 }
+                            } else {
+                                let newRow = document.createElement("tr");
+                                newRow.innerHTML =
+                                    `<td>${influencerName}</td>
+                                     <td>${serviceName}</td>
+                                     <td>$${servicePrice.toFixed(2)}</td>
+                                     <td>$${updatedFee.toFixed(2)}</td>`;
+                                selectedInfluencersBody.appendChild(newRow);
+                                totalFees += updatedFee;
                             }
-                        });
-                        updateInfluencerServicesAndCount(influencerName)
 
-                        updateTotalFees();
+                            updateInfluencerServicesAndCount(influencerName);
+                            updateTotalFees();
+                        } else {
+                            quantityInput.disabled = true;
+                            quantityInput.value = 1;
+                            priceBadge.textContent = `$${servicePrice.toFixed(2)}`;
+
+                            let rows = selectedInfluencersBody.querySelectorAll("tr");
+                            rows.forEach(function (row) {
+                                if (row.cells[0].textContent.trim() === influencerName.trim()) {
+                                    let currentServices = row.cells[1].textContent.split(", ");
+                                    let newServices = currentServices.filter(service => service !== serviceName);
+
+                                    if (newServices.length === 0) {
+                                        let rowFee = parseFloat(row.cells[3].textContent.replace('$', '')) || 0;
+                                        totalFees -= rowFee;
+                                        selectedInfluencersBody.removeChild(row);
+                                    } else {
+                                        row.cells[1].textContent = newServices.join(", ");
+                                        updateInfluencerTotal(influencerName);
+                                    }
+                                }
+                            });
+
+                            updateInfluencerServicesAndCount(influencerName);
+                            updateTotalFees();
+                        }
+
+                        let isChecked = document.querySelectorAll(".service-checkbox:checked").length > 0;
+                        tableContainer.style.display = isChecked ? "block" : "none";
                     }
-
-                    let isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
-                    tableContainer.style.display = isChecked ? "block" : "none";
                 });
+
             });
 
             document.querySelectorAll(".quantity-input").forEach(function (input) {
-                input.addEventListener("input", function () {
-                    let influencerName = this.closest(".card-body").querySelector(".card-title").textContent.trim();
-                    let serviceFee = parseFloat(this.closest("li").querySelector("input[type='checkbox']").dataset.servicePrice);
-                    let priceBadge = this.closest("li").querySelector(".badge");
-                    let quantity = parseInt(this.value) || 1;
-                    let updatedFee = serviceFee * quantity;
-                    priceBadge.textContent = `$${updatedFee.toFixed(2)}`;
-                    updateInfluencerTotal(influencerName);
-                    updateInfluencerServicesAndCount(influencerName)
-
+                document.addEventListener("input", function (event) {
+                    if (event.target.classList.contains("quantity-input")) {
+                        let input = event.target;
+                        let influencerName = input.closest(".card-body").querySelector(".card-title").textContent.trim();
+                        let serviceFee = parseFloat(input.closest("li").querySelector("input[type='checkbox']").dataset.servicePrice);
+                        let priceBadge = input.closest("li").querySelector(".badge");
+                        let quantity = parseInt(input.value) || 1;
+                        let updatedFee = serviceFee * quantity;
+                        priceBadge.textContent = `$${updatedFee.toFixed(2)}`;
+                        updateInfluencerTotal(influencerName);
+                        updateInfluencerServicesAndCount(influencerName);
+                    }
                 });
+
             });
         });
 
@@ -294,30 +322,26 @@
             });
 
 
-            $(document).ready(function() {
-                let offset = 6;
-                $('#load-more').on('click', function() {
-                    $.ajax({
-                        url: '{{ route('influencers-cards.loadMore') }}',
-                        method: 'GET',
-                        data: { offset: offset },
-                        success: function(response) {
-                            if (response.hideButton) {
-                                $('#load-more').hide();
-                            }
-                            $('#influencers-list').append(response.html);
-                            offset += 6;
-                        },
-                        error: function() {
-                            alert('An error occurred while loading more influencers.');
+            $('#load-more').on('click', function() {
+                $.ajax({
+                    url: '{{ route('influencers-cards.loadMore') }}',
+                    method: 'GET',
+                    data: { offset: offset },
+                    success: function(response) {
+                        if (response.hideButton) {
+                            $('#load-more').hide();
                         }
-                    });
+                        $('#influencers-list').append(response.html);
+                        offset += 6;
+                    },
+                    error: function() {
+                        alert('An error occurred while loading more influencers.');
+                    }
                 });
-
             });
 
-        });
 
+        });
     </script>
 @endsection
 

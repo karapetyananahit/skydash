@@ -22,7 +22,9 @@
                             <input type="number"
                                    id="quantity-{{ $influencer->id }}-{{ $socialmedia->id }}"
                                    name="quantity[{{ $influencer->id }}][{{ $socialmedia->id }}]"
-                                   class="form-control form-control-sm mx-2 quantity-input" value="1"
+                                   class="form-control form-control-sm mx-2 quantity-input"
+                                   value="1"
+                                   min="1"
                                    disabled
                                    style="width: 35px; height: 25px; padding: 2px; text-align: center;">
                             <span class="badge rounded-pill">${{ $socialmedia->pivot->price }}</span>
