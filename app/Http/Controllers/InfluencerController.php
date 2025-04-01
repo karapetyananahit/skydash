@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\InfluencersExport;
 use App\Http\Requests\InfluencerRequest;
 use App\Models\Influencer;
 use App\Models\SocialMedia;
@@ -9,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class InfluencerController extends Controller
 
@@ -148,5 +150,11 @@ class InfluencerController extends Controller
             Storage::delete('public/temp/' . $imageName);
         }
         return response()->json(['message' => 'Image deleted successfully']);
+    }
+
+    public function exportInfluencers(Request $request)
+    {
+        $data = $request->input('data');
+        return Excel::download(new InfluencersExport($data), 'influencers.xlsx');
     }
 }

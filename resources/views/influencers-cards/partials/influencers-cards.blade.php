@@ -25,7 +25,7 @@
                                    class="form-control form-control-sm mx-2 quantity-input" value="1"
                                    disabled
                                    style="width: 35px; height: 25px; padding: 2px; text-align: center;">
-                            <span class="badge rounded-pill">{{ $socialmedia->pivot->price }}$</span>
+                            <span class="badge rounded-pill">${{ $socialmedia->pivot->price }}</span>
                         </li>
                     @endforeach
                 </ul>

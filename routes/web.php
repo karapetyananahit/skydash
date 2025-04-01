@@ -1,5 +1,6 @@
 <?php
 
+use App\Exports\InfluencersExport;
 use App\Http\Controllers\InfluencerController;
 use App\Http\Controllers\InfluencersCardsController;
 use App\Http\Controllers\ProfileController;
@@ -8,8 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FacebookController;
 use App\Http\Controllers\GoogleController;
-
-
+use Maatwebsite\Excel\Facades\Excel;
 
 
 /*
@@ -63,6 +63,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/influencers-cards', [InfluencersCardsController::class, 'index'])->name('influencers-cards.index');
     Route::get('/influencers-cards/search', [InfluencersCardsController::class, 'search'])->name('influencers-cards.search');
     Route::get('/influencers-cards/load-more', [InfluencersCardsController::class, 'loadMore'])->name('influencers-cards.loadMore');
+    Route::post('/export-influencers', [InfluencerController::class, 'exportInfluencers'])->name('export.influencers');
 });
 
 Route::get('auth/facebook', [FacebookController::class, 'redirectToFacebook'])->name('facebook.login');

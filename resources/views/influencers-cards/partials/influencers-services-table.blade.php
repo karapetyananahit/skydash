@@ -16,6 +16,7 @@
                     </tbody>
                 </table>
                 <h4>Total Fees: <span id="total-fees">$15500.00</span></h4>
+                <button id="export-excel" class="btn btn-success mt-3">Export to Excel</button>
             </div>
         </div>
 </div>

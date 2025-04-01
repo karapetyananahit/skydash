@@ -32,6 +32,42 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
     <script>
+        document.getElementById("export-excel").addEventListener("click", function () {
+            let tableData = [];
+            let rows = document.querySelectorAll("#selected-influencers-body tr");
+
+            rows.forEach(row => {
+                let cells = row.querySelectorAll("td");
+                let rowData = {
+                    name: cells[0].textContent.trim(),
+                    services: cells[1].textContent.trim(),
+                    price: cells[2].textContent.trim(),
+                    total: cells[3].textContent.trim(),
+                };
+                tableData.push(rowData);
+            });
+
+            fetch("{{ route('export.influencers') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ data: tableData })
+            })
+                .then(response => response.blob())
+                .then(blob => {
+                    let url = window.URL.createObjectURL(blob);
+                    let a = document.createElement("a");
+                    a.href = url;
+                    a.download = "influencers.xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                })
+                .catch(error => console.error("Export error:", error));
+        });
+
 
         document.addEventListener("DOMContentLoaded", function () {
             let checkboxes = document.querySelectorAll(".service-checkbox");
