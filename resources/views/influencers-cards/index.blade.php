@@ -82,7 +82,6 @@
         document.addEventListener("DOMContentLoaded", function () {
             let checkboxes = document.querySelectorAll(".service-checkbox");
             let tableContainer = document.getElementById("selected-influencers-container");
-            let totalFeesElement = document.getElementById("total-fees");
             let selectedInfluencersBody = document.getElementById("selected-influencers-body");
 
             let totalFees = 0;
@@ -105,16 +104,16 @@
                 row.cells[3].textContent = `$${newTotalFee.toFixed(2)}`;
             }
 
-            function calculateInfluencerTotal(influencerName) {
+            function calculateInfluencerTotal(influencerId) {
                 let rows = Array.from(selectedInfluencersBody.querySelectorAll("tr"));
                 let total = 0;
 
                 rows.forEach(function (row) {
-                    if (row.cells[0].textContent.trim() === influencerName.trim()) {
+                    if (row.cells[4].textContent === influencerId) {
                         let services = row.cells[1].textContent.split(", ");
                         services.forEach(function (serviceName) {
                             let checkbox = Array.from(document.querySelectorAll(".service-checkbox")).find(cb =>
-                                cb.dataset.influencerName === influencerName &&
+                                cb.dataset.influencerId === influencerId &&
                                 cb.dataset.serviceName === serviceName
                             );
                             if (checkbox) {
@@ -143,15 +142,15 @@
                 row.cells[2].textContent = `$${totalFee.toFixed(2)}`;
             }
 
-            function updateInfluencerTotal(influencerName) {
+            function updateInfluencerTotal(influencerId) {
                 let existingRow = Array.from(selectedInfluencersBody.querySelectorAll("tr")).find(row =>
-                    row.cells[0].textContent.trim() === influencerName.trim()
+                    row.cells[4].textContent.trim() === influencerId
                 );
 
                 if (existingRow) {
                     updateFeeRow(existingRow);
 
-                    let newTotalFee = calculateInfluencerTotal(influencerName);
+                    let newTotalFee = calculateInfluencerTotal(influencerId);
                     let oldTotalFee = parseFloat(existingRow.cells[3].textContent.replace('$', '')) || 0;
 
                     totalFees -= oldTotalFee;
@@ -162,9 +161,9 @@
                 }
             }
 
-            function updateInfluencerServicesAndCount(influencerName) {
+            function updateInfluencerServicesAndCount(influencerId) {
                 let existingRow = Array.from(selectedInfluencersBody.querySelectorAll("tr")).find(row =>
-                    row.cells[0].textContent.trim() === influencerName.trim()
+                    row.cells[4].textContent.trim() === influencerId.trim()
                 );
 
                 if (!existingRow) return;
@@ -174,7 +173,7 @@
                 let newTotalFee = 0;
 
                 let checkboxes = Array.from(document.querySelectorAll(".service-checkbox")).filter(cb =>
-                    cb.dataset.influencerName === influencerName
+                    cb.dataset.influencerId === influencerId
                 );
 
                 checkboxes.forEach(checkbox => {
@@ -217,6 +216,7 @@
                     if (event.target.classList.contains("service-checkbox")) {
                         let checkbox = event.target;
                         let influencerName = checkbox.dataset.influencerName;
+                        let influencerId = checkbox.dataset.influencerId;
                         let serviceName = checkbox.dataset.serviceName;
                         let servicePrice = parseFloat(checkbox.dataset.servicePrice);
                         let quantityInput = document.getElementById(checkbox.dataset.target);
@@ -228,14 +228,15 @@
                             let updatedFee = servicePrice * quantity;
 
                             let existingRow = Array.from(selectedInfluencersBody.querySelectorAll("tr")).find(row =>
-                                row.cells[0].textContent.trim() === influencerName.trim()
+                                row.cells[4].textContent.trim() === influencerId.trim()
                             );
+
 
                             if (existingRow) {
                                 let currentServices = existingRow.cells[1].textContent;
                                 if (!currentServices.includes(serviceName)) {
                                     existingRow.cells[1].textContent = currentServices + ", " + serviceName;
-                                    updateInfluencerTotal(influencerName);
+                                    updateInfluencerTotal(influencerId);
                                 }
                             } else {
                                 let newRow = document.createElement("tr");
@@ -243,12 +244,13 @@
                                     `<td>${influencerName}</td>
                                      <td>${serviceName}</td>
                                      <td>$${servicePrice.toFixed(2)}</td>
-                                     <td>$${updatedFee.toFixed(2)}</td>`;
+                                     <td>$${updatedFee.toFixed(2)}</td>
+                                     <td style="display: none">${influencerId}</td>`;;
                                 selectedInfluencersBody.appendChild(newRow);
                                 totalFees += updatedFee;
                             }
 
-                            updateInfluencerServicesAndCount(influencerName);
+                            updateInfluencerServicesAndCount(influencerId);
                             updateTotalFees();
                         } else {
                             quantityInput.disabled = true;
@@ -257,7 +259,7 @@
 
                             let rows = selectedInfluencersBody.querySelectorAll("tr");
                             rows.forEach(function (row) {
-                                if (row.cells[0].textContent.trim() === influencerName.trim()) {
+                                if (row.cells[4].textContent === influencerId) {
                                     let currentServices = row.cells[1].textContent.split(", ");
                                     let newServices = currentServices.filter(service => service !== serviceName);
 
@@ -267,12 +269,12 @@
                                         selectedInfluencersBody.removeChild(row);
                                     } else {
                                         row.cells[1].textContent = newServices.join(", ");
-                                        updateInfluencerTotal(influencerName);
+                                        updateInfluencerTotal(influencerId);
                                     }
                                 }
                             });
 
-                            updateInfluencerServicesAndCount(influencerName);
+                            updateInfluencerServicesAndCount(influencerId);
                             updateTotalFees();
                         }
 
@@ -287,18 +289,22 @@
                 document.addEventListener("input", function (event) {
                     if (event.target.classList.contains("quantity-input")) {
                         let input = event.target;
-                        let influencerName = input.closest(".card-body").querySelector(".card-title").textContent.trim();
-                        let serviceFee = parseFloat(input.closest("li").querySelector("input[type='checkbox']").dataset.servicePrice);
+                        let cardBody = input.closest(".card-body");
+                        let influencerNameElement = cardBody.querySelector(".card-title");
+                        let influencerName = influencerNameElement.textContent.trim();
+                        let influencerId = cardBody.dataset.influencerId;
+                        let serviceFee = parseFloat(input.closest("li").querySelector("input[type='checkbox']").dataset.servicePrice) || 0;
                         let priceBadge = input.closest("li").querySelector(".badge");
                         let quantity = parseInt(input.value) || 1;
                         let updatedFee = serviceFee * quantity;
                         priceBadge.textContent = `$${updatedFee.toFixed(2)}`;
-                        updateInfluencerTotal(influencerName);
-                        updateInfluencerServicesAndCount(influencerName);
+
+                        updateInfluencerTotal(influencerId);
+                        updateInfluencerServicesAndCount(influencerId);
                     }
                 });
-
             });
+
         });
 
         $(document).ready(function() {

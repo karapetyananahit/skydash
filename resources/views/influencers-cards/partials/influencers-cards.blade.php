@@ -1,7 +1,7 @@
 @foreach ($influencers as $influencer)
     <div class="col-md-4 mb-4 influencer-item">
         <div class="card shadow-sm">
-            <div class="card-body">
+            <div class="card-body" data-influencer-id="{{ $influencer->id }}">
                 <div class="d-flex align-items-center">
                     <img src="{{ asset($influencer->image ? 'storage/auth/' . $influencer->image : 'images/default-profile.png') }}"
                          alt="Profile Picture" class="me-3" width="100" height="100">
@@ -12,12 +12,11 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <input type="checkbox"
                                    class="me-2 service-checkbox"
+                                   data-influencer-id="{{ $influencer->id }}"
                                    data-influencer-name="{{ $influencer->name }}"
                                    data-service-name="{{ $socialmedia->name }}"
                                    data-service-price="{{ $socialmedia->pivot->price }}"
                                    data-target="quantity-{{ $influencer->id }}-{{ $socialmedia->id }}">
-
-
                             {{ $socialmedia->name }}
                             <input type="number"
                                    id="quantity-{{ $influencer->id }}-{{ $socialmedia->id }}"

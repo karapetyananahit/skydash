@@ -9,6 +9,7 @@
                         <th>Services</th>
                         <th>Fee</th>
                         <th>Total Fee</th>
+                        <th style="display: none">id</th>
                     </tr>
                     </thead>
                     <tbody id="selected-influencers-body">
@@ -16,7 +17,7 @@
                     </tbody>
                 </table>
                 <h4>Total Fees: <span id="total-fees">$15500.00</span></h4>
-                <button id="export-excel" class="btn btn-success mt-3">Export to Excel</button>
+                <button id="export-excel" class="btn btn-primary mt-3">Export to Excel</button>
             </div>
         </div>
 </div>
