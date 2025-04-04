@@ -67,29 +67,21 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                        let fileName = data.filename;
-                        let checkInterval = setInterval(() => {
-                            fetch(`{{ url('/download-export') }}/${fileName}`, { method: "HEAD" })
-                                .then(response => {
-                                    if (response.ok) {
-                                        clearInterval(checkInterval);
-                                        let downloadUrl = `{{ url('/download-export') }}/${fileName}`;
-                                        let a = document.createElement("a");
-                                        a.href = downloadUrl;
-                                        a.download = fileName;
-                                        document.body.appendChild(a);
-                                        a.click();
-                                        a.remove();
-                                    }
-                                })
-                                .catch(error => console.error("Checking file error:", error));
-                        }, 2000);
-
+                    let fileName = data.filename;
+                    let checkInterval = setInterval(() => {
+                        let downloadUrl = `{{ url('/download-export') }}/${fileName}`;
+                        fetch(downloadUrl)
+                            .then(response => {
+                                if (response.ok) {
+                                    clearInterval(checkInterval);
+                                    window.location.href = downloadUrl;
+                                }
+                            })
+                            .catch(error => console.error("Checking file error:", error));
+                    }, 2000);
                 })
                 .catch(error => console.error("Export error:", error));
         });
-
-
 
         document.addEventListener("DOMContentLoaded", function () {
             let checkboxes = document.querySelectorAll(".service-checkbox");
