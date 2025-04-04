@@ -67,17 +67,24 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.filename) {
-                        let downloadUrl = `{{ url('/download-export') }}/${data.filename}`;
-                        let a = document.createElement("a");
-                        a.href = downloadUrl;
-                        a.download = data.filename;
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-                    } else {
-                        console.error("Export failed:", data);
-                    }
+                        let fileName = data.filename;
+                        let checkInterval = setInterval(() => {
+                            fetch(`{{ url('/download-export') }}/${fileName}`, { method: "HEAD" })
+                                .then(response => {
+                                    if (response.ok) {
+                                        clearInterval(checkInterval);
+                                        let downloadUrl = `{{ url('/download-export') }}/${fileName}`;
+                                        let a = document.createElement("a");
+                                        a.href = downloadUrl;
+                                        a.download = fileName;
+                                        document.body.appendChild(a);
+                                        a.click();
+                                        a.remove();
+                                    }
+                                })
+                                .catch(error => console.error("Checking file error:", error));
+                        }, 2000);
+
                 })
                 .catch(error => console.error("Export error:", error));
         });
