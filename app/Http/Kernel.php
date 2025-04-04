@@ -2,7 +2,9 @@
 
 namespace App\Http;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Support\Facades\Storage;
 
 class Kernel extends HttpKernel
 {
@@ -66,4 +68,19 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
 
     ];
+
+    protected function schedule(Schedule $schedule)
+    {
+        $schedule->command('export:influencers')->dailyAt('02:00');
+
+        $schedule->call(function () {
+            $files = Storage::files('exports/');
+            foreach ($files as $file) {
+                if (now()->diffInDays(Storage::lastModified($file)) > 7) {
+                    Storage::delete($file);
+                }
+            }
+        })->daily();
+    }
+
 }

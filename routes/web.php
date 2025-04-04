@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FacebookController;
 use App\Http\Controllers\GoogleController;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,7 +63,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/influencers-cards', [InfluencersCardsController::class, 'index'])->name('influencers-cards.index');
     Route::get('/influencers-cards/search', [InfluencersCardsController::class, 'search'])->name('influencers-cards.search');
     Route::get('/influencers-cards/load-more', [InfluencersCardsController::class, 'loadMore'])->name('influencers-cards.loadMore');
-    Route::post('/export-influencers', [InfluencerController::class, 'exportInfluencers'])->name('export.influencers');
+//    Route::post('/export-influencers', [InfluencerController::class, 'exportInfluencers'])->name('export.influencers');
+
+    Route::post('/export-influencers', [InfluencerController::class, 'queueExport'])->name('export.influencers');
+    Route::get('/download-export/{filename}', [InfluencerController::class, 'downloadExport'])->name('download.influencers');
+
 });
 
 Route::get('auth/facebook', [FacebookController::class, 'redirectToFacebook'])->name('facebook.login');

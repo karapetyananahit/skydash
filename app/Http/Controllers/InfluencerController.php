@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\InfluencersExport;
 use App\Http\Requests\InfluencerRequest;
+use App\Jobs\ExportInfluencersJob;
 use App\Models\Influencer;
 use App\Models\SocialMedia;
 use Illuminate\Http\RedirectResponse;
@@ -156,5 +157,34 @@ class InfluencerController extends Controller
     {
         $data = $request->input('data');
         return Excel::download(new InfluencersExport($data), 'influencers.xlsx');
+    }
+
+    public function queueExport(Request $request)
+    {
+        $data = $request->input('data');
+
+        if (!$data) {
+            return response()->json(["message" => "No data provided"], 400);
+        }
+
+        $fileName = 'influencers_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        ExportInfluencersJob::dispatch($data, $fileName);
+
+        return response()->json([
+            "message" => "Export process started",
+            "filename" => $fileName
+        ]);
+    }
+
+    public function downloadExport($filename)
+    {
+        $filePath = storage_path("app/exports/{$filename}");
+
+        if (!file_exists($filePath)) {
+            return response()->json(["message" => "File not found"], 404);
+        }
+
+        return response()->download($filePath);
     }
 }
