@@ -68,32 +68,19 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.filename) {
-                        alert("Export started. Please wait...");
-
-                        // Ստուգում ենք, երբ ֆայլը պատրաստ լինի
-                        let checkFileInterval = setInterval(() => {
-                            fetch(`{{ url('/download-export') }}/${data.filename}`)
-                                .then(response => {
-                                    if (response.status === 200) {
-                                        clearInterval(checkFileInterval);
-                                        let a = document.createElement("a");
-                                        a.href = response.url;
-                                        a.download = data.filename;
-                                        document.body.appendChild(a);
-                                        a.click();
-                                        a.remove();
-                                        alert("Download started!");
-                                    }
-                                })
-                                .catch(error => console.error("Download error:", error));
-                        }, 5000); // Ստուգում ենք յուրաքանչյուր 5 վայրկյանը մեկ
+                        let downloadUrl = `{{ url('/download-export') }}/${data.filename}`;
+                        let a = document.createElement("a");
+                        a.href = downloadUrl;
+                        a.download = data.filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
                     } else {
                         console.error("Export failed:", data);
                     }
                 })
                 .catch(error => console.error("Export error:", error));
         });
-
 
 
 

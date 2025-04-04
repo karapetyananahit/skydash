@@ -19,11 +19,3 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-
-Route::post('/export-influencers', function (Request $request) {
-    $data = json_encode($request->input('data'));
-
-    Artisan::call("export:influencers '$data'");
-
-    return response()->json(["message" => "Export started"], 200);
-})->name('export.influencers');

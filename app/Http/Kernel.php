@@ -71,8 +71,6 @@ class Kernel extends HttpKernel
 
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('export:influencers')->dailyAt('02:00');
-
         $schedule->call(function () {
             $files = Storage::files('exports/');
             foreach ($files as $file) {

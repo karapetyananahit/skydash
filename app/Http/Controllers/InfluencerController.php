@@ -153,11 +153,11 @@ class InfluencerController extends Controller
         return response()->json(['message' => 'Image deleted successfully']);
     }
 
-    public function exportInfluencers(Request $request)
-    {
-        $data = $request->input('data');
-        return Excel::download(new InfluencersExport($data), 'influencers.xlsx');
-    }
+//    public function exportInfluencers(Request $request)
+//    {
+//        $data = $request->input('data');
+//        return Excel::download(new InfluencersExport($data), 'influencers.xlsx');
+//    }
 
     public function queueExport(Request $request)
     {
